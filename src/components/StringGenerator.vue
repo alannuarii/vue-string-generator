@@ -90,146 +90,417 @@ generate();
 </script>
 
 <template>
-  <div class="bg-white dark:bg-surface-dark rounded-xl shadow-lg border border-gray-200 dark:border-border-dark p-6 sm:p-8 transition-colors duration-300">
-    <!-- Result Display -->
-    <div class="mb-8 flex flex-col gap-4">
-      <div class="flex justify-between items-end">
-        <label class="block text-sm font-medium text-gray-500 dark:text-gray-400">Generated String</label>
-        <span 
-          v-if="copied"
-          class="text-xs font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-900/30 px-2 py-1 rounded-md animate-pulse"
-        >
-          Copied!
-        </span>
-      </div>
-      
-      <div class="relative group">
-        <div class="w-full bg-background-light dark:bg-[#15151a] border border-gray-200 dark:border-[#333] rounded-xl p-5 sm:p-6 flex items-center justify-between gap-4 transition-all duration-300 focus-within:ring-2 focus-within:ring-primary/50">
+  <div class="card string-generator-card">
+    <div class="generator-scroll-container">
+      <!-- Result Display -->
+      <div class="result-section">
+        <div class="result-header">
+          <label class="label">Generated String</label>
           <span 
-            class="font-mono text-2xl sm:text-3xl text-primary break-all dark:text-primary-glow dark:drop-shadow-[0_0_8px_rgba(129,140,248,0.4)] selection:bg-primary selection:text-white truncate"
+            v-if="copied"
+            class="badge-copied animate-pulse"
           >
-            {{ generatedString }}
+            Copied!
           </span>
-          <button 
-            @click="copyToClipboard"
-            class="shrink-0 p-2.5 rounded-lg text-gray-500 hover:text-primary hover:bg-primary/10 dark:text-gray-400 dark:hover:text-white dark:hover:bg-white/10 transition-colors tooltip" 
-            title="Copy to Clipboard"
-          >
-            <span class="material-symbols-outlined text-[24px]">content_copy</span>
-          </button>
         </div>
-        <!-- Decorative glow -->
-        <div class="absolute -inset-0.5 bg-primary/20 rounded-xl blur opacity-0 group-hover:opacity-100 transition duration-500 -z-10 hidden dark:block"></div>
+        
+        <div class="result-wrapper group">
+          <div class="result-box">
+            <span class="result-text truncate">
+              {{ generatedString }}
+            </span>
+            <button 
+              @click="copyToClipboard"
+              class="btn-icon"
+              title="Copy to Clipboard"
+            >
+              <span class="material-symbols-outlined text-[20px]">content_copy</span>
+            </button>
+          </div>
+          <!-- Decorative glow -->
+          <div class="glow-effect group-hover-visible hidden dark:block"></div>
+        </div>
+
+         <!-- Strength Meter -->
+          <div class="strength-section">
+              <div class="strength-header">
+                  <span class="strength-title">Entropy Strength</span>
+                  <span class="strength-label" :class="strength.class">{{ strength.label }}</span>
+              </div>
+              <div class="strength-track">
+                  <div class="strength-bar" :class="strength.bg" :style="{ width: strength.width }"></div>
+              </div>
+          </div>
       </div>
 
-       <!-- Strength Meter -->
-        <div class="flex flex-col gap-2 mt-2">
-            <div class="flex justify-between text-sm">
-                <span class="font-medium text-slate-600 dark:text-slate-300">Entropy Strength</span>
-                <span class="font-bold" :class="strength.class">{{ strength.label }}</span>
+      <!-- Controls Grid -->
+      <div class="controls-grid">
+        <!-- Length Slider -->
+        <div class="length-control">
+          <div class="length-header">
+            <label class="label-lg">Length</label>
+            <span class="length-value">{{ length }}</span>
+          </div>
+          <div class="slider-wrapper">
+              <input 
+                  v-model.number="length"
+                  type="range" 
+                  min="6" 
+                  max="64"
+                  class="range-slider"
+              />
+          </div>
+          <div class="slider-labels">
+            <span>6</span>
+            <span>64</span>
+          </div>
+        </div>
+
+        <!-- Options -->
+        <div class="options-grid">
+          <!-- Uppercase -->
+          <label class="option-label group">
+            <div class="option-content">
+              <span class="icon-circle group-hover-active">A</span>
+              <span class="option-text">Uppercase</span>
             </div>
-            <div class="h-2 w-full bg-slate-100 dark:bg-[#2a2938] rounded-full overflow-hidden">
-                <div class="h-full rounded-full transition-all duration-500 ease-out" :class="strength.bg" :style="{ width: strength.width }"></div>
+            <div class="toggle-wrapper">
+              <input type="checkbox" v-model="includeUppercase" class="sr-only">
+              <div class="toggle-switch"></div>
             </div>
-        </div>
-    </div>
+          </label>
 
-    <!-- Controls Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
-      <!-- Length Slider -->
-      <div class="col-span-1 md:col-span-2">
-        <div class="flex justify-between items-center mb-4">
-          <label class="text-base font-semibold text-gray-900 dark:text-white">Length</label>
-          <span class="px-3 py-1 rounded-md bg-primary/10 text-primary font-mono font-bold text-lg">{{ length }}</span>
-        </div>
-        <div class="relative w-full h-6 flex items-center">
-            <input 
-                v-model.number="length"
-                type="range" 
-                min="6" 
-                max="64"
-                class="w-full h-1 bg-gray-200 dark:bg-[#3e3d52] rounded-lg appearance-none cursor-pointer focus:outline-none focus:ring-0 accent-primary z-10 slider-thumb"
-            />
-        </div>
-        <div class="flex justify-between text-xs text-gray-400 mt-2 font-mono">
-          <span>6</span>
-          <span>64</span>
+          <!-- Lowercase -->
+          <label class="option-label group">
+            <div class="option-content">
+              <span class="icon-circle group-hover-active">a</span>
+              <span class="option-text">Lowercase</span>
+            </div>
+            <div class="toggle-wrapper">
+              <input type="checkbox" v-model="includeLowercase" class="sr-only">
+              <div class="toggle-switch"></div>
+            </div>
+          </label>
+
+          <!-- Numbers -->
+          <label class="option-label group">
+            <div class="option-content">
+              <span class="icon-circle group-hover-active">1</span>
+              <span class="option-text">Numbers</span>
+            </div>
+            <div class="toggle-wrapper">
+              <input type="checkbox" v-model="includeDigits" class="sr-only">
+              <div class="toggle-switch"></div>
+            </div>
+          </label>
+
+          <!-- Symbols -->
+          <label class="option-label group">
+            <div class="option-content">
+              <span class="icon-circle group-hover-active">#</span>
+              <span class="option-text">Symbols</span>
+            </div>
+            <div class="toggle-wrapper">
+              <input type="checkbox" v-model="includeSymbols" class="sr-only">
+              <div class="toggle-switch"></div>
+            </div>
+          </label>
         </div>
       </div>
 
-      <!-- Options -->
-      <div class="col-span-1 md:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <!-- Uppercase -->
-        <label class="flex items-center justify-between p-4 rounded-lg border border-gray-200 dark:border-[#2a2938] bg-gray-50 dark:bg-[#1a1a20] cursor-pointer hover:border-primary/50 dark:hover:border-primary/50 transition-colors group">
-          <div class="flex items-center gap-3">
-            <span class="w-8 h-8 rounded-full bg-gray-200 dark:bg-[#2a2938] flex items-center justify-center text-gray-600 dark:text-gray-400 font-bold group-hover:text-primary transition-colors">A</span>
-            <span class="text-gray-900 dark:text-white font-medium">Uppercase</span>
-          </div>
-          <div class="relative inline-flex items-center cursor-pointer">
-            <input type="checkbox" v-model="includeUppercase" class="sr-only peer">
-            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-[#3e3d52] peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary"></div>
-          </div>
-        </label>
-
-        <!-- Lowercase -->
-        <label class="flex items-center justify-between p-4 rounded-lg border border-gray-200 dark:border-[#2a2938] bg-gray-50 dark:bg-[#1a1a20] cursor-pointer hover:border-primary/50 dark:hover:border-primary/50 transition-colors group">
-          <div class="flex items-center gap-3">
-            <span class="w-8 h-8 rounded-full bg-gray-200 dark:bg-[#2a2938] flex items-center justify-center text-gray-600 dark:text-gray-400 font-bold group-hover:text-primary transition-colors">a</span>
-            <span class="text-gray-900 dark:text-white font-medium">Lowercase</span>
-          </div>
-          <div class="relative inline-flex items-center cursor-pointer">
-            <input type="checkbox" v-model="includeLowercase" class="sr-only peer">
-            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-[#3e3d52] peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary"></div>
-          </div>
-        </label>
-
-        <!-- Numbers -->
-        <label class="flex items-center justify-between p-4 rounded-lg border border-gray-200 dark:border-[#2a2938] bg-gray-50 dark:bg-[#1a1a20] cursor-pointer hover:border-primary/50 dark:hover:border-primary/50 transition-colors group">
-          <div class="flex items-center gap-3">
-            <span class="w-8 h-8 rounded-full bg-gray-200 dark:bg-[#2a2938] flex items-center justify-center text-gray-600 dark:text-gray-400 font-bold group-hover:text-primary transition-colors">1</span>
-            <span class="text-gray-900 dark:text-white font-medium">Numbers</span>
-          </div>
-          <div class="relative inline-flex items-center cursor-pointer">
-            <input type="checkbox" v-model="includeDigits" class="sr-only peer">
-            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-[#3e3d52] peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary"></div>
-          </div>
-        </label>
-
-        <!-- Symbols -->
-        <label class="flex items-center justify-between p-4 rounded-lg border border-gray-200 dark:border-[#2a2938] bg-gray-50 dark:bg-[#1a1a20] cursor-pointer hover:border-primary/50 dark:hover:border-primary/50 transition-colors group">
-          <div class="flex items-center gap-3">
-            <span class="w-8 h-8 rounded-full bg-gray-200 dark:bg-[#2a2938] flex items-center justify-center text-gray-600 dark:text-gray-400 font-bold group-hover:text-primary transition-colors">#</span>
-            <span class="text-gray-900 dark:text-white font-medium">Symbols</span>
-          </div>
-          <div class="relative inline-flex items-center cursor-pointer">
-            <input type="checkbox" v-model="includeSymbols" class="sr-only peer">
-            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-[#3e3d52] peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary"></div>
-          </div>
-        </label>
+      <!-- Generate Button -->
+      <div class="action-section">
+        <button 
+          @click="generate"
+          class="btn-primary group"
+        >
+          <span class="material-symbols-outlined group-hover-rotate text-[20px]">bolt</span>
+          <span class="btn-text-lg">GENERATE</span>
+        </button>
       </div>
-    </div>
-
-    <!-- Generate Button -->
-    <div class="mt-8">
-      <button 
-        @click="generate"
-        class="group relative w-full flex items-center justify-center gap-3 bg-primary hover:bg-primary/90 text-white font-bold py-4 px-8 rounded-xl transition-all duration-300 transform active:scale-[0.98] shadow-lg dark:shadow-neon overflow-hidden"
-      >
-        <span class="material-symbols-outlined transition-transform duration-300 group-hover:rotate-12">bolt</span>
-        <span class="text-lg tracking-wide">GENERATE</span>
-        <div class="absolute top-0 -inset-full h-full w-1/2 z-5 block transform -skew-x-12 bg-gradient-to-r from-transparent to-white opacity-20 group-hover:animate-shine"></div>
-      </button>
     </div>
   </div>
 </template>
 
 <style scoped>
-@keyframes shine {
-    100% {
-        left: 125%;
-    }
+/* Colors for Strength Meter - scoping locally to use dynamic classes */
+.text-red-500 { color: #ef4444; }
+.text-orange-500 { color: #f97316; }
+.text-emerald-500 { color: #10b981; }
+.bg-red-500 { background-color: #ef4444; }
+.bg-orange-500 { background-color: #f97316; }
+.bg-emerald-500 { background-color: #10b981; }
+
+.string-generator-card {
+  transition: background-color 0.3s, border-color 0.3s;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 0;
+  min-height: 0;
 }
-.animate-shine {
-    animation: shine 1s;
+
+.generator-scroll-container {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  min-height: 0;
+}
+
+@media (min-width: 640px) {
+  .generator-scroll-container { 
+    padding: 1rem;
+    gap: 1rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .generator-scroll-container { 
+    padding: 1.25rem;
+    gap: 1.125rem;
+  }
+}
+
+.result-section {
+  margin-bottom: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.result-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.label {
+  display: block;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--text-muted-light);
+}
+
+html.dark .label { color: var(--text-muted-dark); }
+
+.badge-copied {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #059669; /* emerald-600 */
+  background-color: #d1fae5; /* emerald-100 */
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.375rem;
+}
+
+html.dark .badge-copied {
+  color: #34d399; /* emerald-400 */
+  background-color: rgba(6, 78, 59, 0.3); /* emerald-900/30 */
+}
+
+.result-wrapper { position: relative; }
+
+.glow-effect {
+  position: absolute;
+  top: -2px; left: -2px; right: -2px; bottom: -2px;
+  background-color: rgba(80, 72, 229, 0.2);
+  border-radius: var(--radius-lg);
+  filter: blur(4px);
+  opacity: 0;
+  transition: opacity 0.5s;
+  z-index: -10;
+}
+
+.group:hover .group-hover-visible { opacity: 1; }
+
+.strength-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-top: 0.125rem;
+}
+
+.strength-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8125rem;
+}
+
+.strength-title {
+  font-weight: 500;
+  color: var(--text-muted-light);
+}
+
+html.dark .strength-title { color: var(--text-muted-dark); }
+
+.strength-label {
+  font-weight: 700;
+}
+
+.strength-track {
+  height: 0.375rem;
+  width: 100%;
+  background-color: #f1f5f9;
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+html.dark .strength-track { background-color: #2a2938; }
+
+.strength-bar {
+  height: 100%;
+  border-radius: 9999px;
+  transition: width 0.5s ease-out, background-color 0.3s;
+}
+
+.controls-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  row-gap: 0.625rem;
+  column-gap: 1rem;
+  flex-shrink: 0;
+}
+
+@media (min-width: 768px) {
+  .controls-grid { grid-template-columns: 1fr 1fr; }
+}
+
+.length-control {
+  grid-column: 1 / -1;
+}
+
+.length-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.label-lg {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-main-light);
+}
+
+html.dark .label-lg { color: var(--text-main-dark); }
+
+.length-value {
+  padding: 0.125rem 0.5rem;
+  border-radius: 0.25rem;
+  background-color: rgba(80, 72, 229, 0.1);
+  color: var(--primary);
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.875rem;
+}
+
+.slider-wrapper {
+  position: relative;
+  width: 100%;
+  height: 1.25rem;
+  display: flex;
+  align-items: center;
+}
+
+.slider-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: var(--text-muted-light);
+  margin-top: 0.25rem;
+  font-family: var(--font-mono);
+}
+
+.options-grid {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.5rem;
+}
+
+@media (min-width: 640px) {
+  .options-grid { grid-template-columns: 1fr 1fr; }
+}
+
+.option-content {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.option-label:hover .group-hover-active {
+  color: var(--primary);
+}
+
+.option-text {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--text-main-light);
+}
+
+html.dark .option-text { color: var(--text-main-dark); }
+
+.toggle-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.action-section {
+  margin-top: 0;
+  flex-shrink: 0;
+  padding-bottom: 0.25rem;
+}
+
+.group-hover-rotate {
+  transition: transform 0.3s;
+}
+
+.group:hover .group-hover-rotate {
+  transform: rotate(12deg);
+}
+
+.btn-text-lg {
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+.truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Custom Scrollbar */
+.generator-scroll-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.generator-scroll-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.generator-scroll-container::-webkit-scrollbar-thumb {
+  background-color: rgba(80, 72, 229, 0.3);
+  border-radius: 20px;
+}
+
+.generator-scroll-container::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(80, 72, 229, 0.5);
+}
+
+html.dark .generator-scroll-container::-webkit-scrollbar-thumb {
+  background-color: rgba(129, 140, 248, 0.3);
+}
+
+html.dark .generator-scroll-container::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(129, 140, 248, 0.5);
 }
 </style>

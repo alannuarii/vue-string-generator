@@ -31,37 +31,37 @@ const getStrengthLabel = (str) => {
 </script>
 
 <template>
-  <div class="bg-white dark:bg-surface-dark rounded-xl shadow-lg border border-gray-200 dark:border-border-dark flex flex-col h-full max-h-[600px] sticky top-24">
-    <div class="p-6 border-b border-gray-200 dark:border-border-dark flex items-center justify-between">
-      <h3 class="font-bold text-gray-900 dark:text-white flex items-center gap-2">
-        <span class="material-symbols-outlined text-gray-400">history</span>
+  <div class="card sidebar-container">
+    <div class="sidebar-header">
+      <h3 class="flex items-center gap-2">
+        <span class="material-symbols-outlined icon-muted">history</span>
         History
       </h3>
       <button 
         @click="$emit('clear')"
-        class="text-xs font-medium text-gray-500 hover:text-primary dark:text-gray-400 dark:hover:text-white transition-colors"
+        class="btn-text"
       >
         Clear All
       </button>
     </div>
     
-    <div class="flex-1 overflow-y-auto p-2 history-scroll space-y-1">
-        <div v-if="history.length === 0" class="p-4 text-center text-gray-400 text-sm">
+    <div class="history-list history-scroll">
+        <div v-if="history.length === 0" class="empty-state">
             No history yet. Generate some strings!
         </div>
 
       <div 
         v-for="item in history" 
         :key="item.id"
-        class="group relative flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-[#25252e] transition-colors cursor-pointer border border-transparent hover:border-gray-200 dark:hover:border-[#333]"
+        class="history-item group"
       >
-        <div class="min-w-0 flex-1">
-          <p class="font-mono text-sm text-gray-700 dark:text-gray-300 truncate">{{ item.text }}</p>
-          <p class="text-[10px] text-gray-400 mt-1">{{ item.text.length }} chars • {{ getStrengthLabel(item.text) }}</p>
+        <div class="item-content">
+          <p class="history-text">{{ item.text }}</p>
+          <p class="history-meta">{{ item.text.length }} chars • {{ getStrengthLabel(item.text) }}</p>
         </div>
         <button 
           @click="$emit('copy', item.text, item.id)"
-          class="opacity-0 group-hover:opacity-100 p-1.5 rounded-md text-gray-400 hover:text-primary hover:bg-white dark:hover:bg-[#333] transition-all shadow-sm"
+          class="btn-copy-sm"
           title="Copy"
         >
           <span class="material-symbols-outlined text-[18px]">content_copy</span>
@@ -69,10 +69,10 @@ const getStrengthLabel = (str) => {
       </div>
     </div>
     
-    <div class="p-4 border-t border-gray-200 dark:border-border-dark bg-gray-50 dark:bg-[#1a1a20] rounded-b-xl">
+    <div class="sidebar-footer">
       <button 
         @click="$emit('copy-all')"
-        class="w-full py-2 px-4 rounded-lg border border-gray-300 dark:border-[#333] text-gray-600 dark:text-gray-400 text-sm font-medium hover:bg-white dark:hover:bg-[#25252e] transition-colors flex items-center justify-center gap-2"
+        class="btn-secondary w-full"
       >
         <span class="material-symbols-outlined text-[18px]">file_copy</span>
         Copy All History
@@ -80,3 +80,152 @@ const getStrengthLabel = (str) => {
     </div>
   </div>
 </template>
+
+<style scoped>
+.sidebar-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 0; 
+  overflow: hidden;
+}
+
+.sidebar-header {
+  flex-shrink: 0;
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--border-light);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+html.dark .sidebar-header {
+  border-color: var(--border-dark);
+}
+
+.icon-muted {
+  color: var(--text-muted-light);
+}
+
+html.dark .icon-muted {
+  color: var(--text-muted-dark);
+}
+
+.btn-text {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-muted-light);
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.btn-text:hover { color: var(--primary); }
+
+html.dark .btn-text { color: var(--text-muted-dark); }
+html.dark .btn-text:hover { color: white; }
+
+.history-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.empty-state {
+  padding: 1rem;
+  text-align: center;
+  color: var(--text-muted-light);
+  font-size: 0.875rem;
+}
+
+.item-content {
+  min-width: 0;
+  flex: 1;
+}
+
+.history-text {
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.history-meta {
+  font-size: 0.625rem; /* 10px */
+  color: var(--text-muted-light);
+  margin-top: 0.25rem;
+}
+
+html.dark .history-meta { color: var(--text-muted-dark); }
+
+.btn-copy-sm {
+  opacity: 0;
+  padding: 0.375rem;
+  border-radius: 0.375rem;
+  color: var(--text-muted-light);
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.group:hover .btn-copy-sm { opacity: 1; }
+
+.btn-copy-sm:hover {
+  color: var(--primary);
+  background-color: white;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+html.dark .btn-copy-sm:hover {
+  background-color: #333;
+  color: white;
+}
+
+.sidebar-footer {
+  padding: 1rem;
+  border-top: 1px solid var(--border-light);
+  background-color: #f9fafb;
+  border-bottom-left-radius: var(--radius-xl);
+  border-bottom-right-radius: var(--radius-xl);
+}
+
+html.dark .sidebar-footer {
+  border-color: var(--border-dark);
+  background-color: #1a1a20;
+}
+
+.btn-secondary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid #d1d5db;
+  color: var(--text-muted-light);
+  background-color: transparent;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-secondary:hover {
+  background-color: white;
+}
+
+html.dark .btn-secondary {
+  border-color: #333;
+  color: var(--text-muted-dark);
+}
+
+html.dark .btn-secondary:hover {
+  background-color: #25252e;
+}
+</style>

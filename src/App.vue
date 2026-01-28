@@ -74,20 +74,20 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="bg-background-light dark:bg-background-dark font-display min-h-screen flex flex-col transition-colors duration-300">
+  <div class="app-container">
     <!-- Navbar -->
-    <header class="w-full border-b border-gray-200 dark:border-border-dark bg-white dark:bg-surface-dark sticky top-0 z-50">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <header>
+      <div class="container">
         <div class="flex items-center justify-between h-16">
           <div class="flex items-center gap-3">
-            <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-primary/20 text-primary">
+            <div class="logo-icon flex items-center justify-center">
               <span class="material-symbols-outlined text-[20px]">enhanced_encryption</span>
             </div>
-            <h1 class="text-xl font-bold text-gray-900 dark:text-white tracking-tight">StringGen</h1>
+            <h1 class="text-xl">StringGen</h1>
           </div>
           <button 
             @click="toggleTheme"
-            class="p-2 rounded-lg text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-white/5 transition-colors focus:outline-none"
+            class="btn-icon"
             aria-label="Toggle Dark Mode"
           >
             <span class="material-symbols-outlined block dark:hidden">dark_mode</span>
@@ -98,16 +98,16 @@ onMounted(() => {
     </header>
 
     <!-- Main Content -->
-    <main class="flex-grow p-4 sm:p-6 lg:p-8">
-      <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 items-start">
+    <main class="main-content">
+      <div class="container main-grid">
         
         <!-- Left Column: Generator Interface -->
-        <div class="lg:col-span-2 flex flex-col gap-6">
+        <div class="generator-column">
             <StringGenerator @generated="addToHistory" />
         </div>
 
         <!-- Right Column: History Panel -->
-        <div class="col-span-1">
+        <div class="history-column">
             <HistorySidebar 
                 :history="history" 
                 @clear="clearHistory" 
@@ -120,10 +120,73 @@ onMounted(() => {
     </main>
 
     <!-- Footer decoration -->
-    <div class="fixed bottom-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary to-transparent opacity-50 pointer-events-none"></div>
+    <div class="footer-glow"></div>
   </div>
 </template>
 
 <style scoped>
-/* Scoped styles mainly handled by Tailwind classes now */
+.app-container {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.h-16 { height: 4rem; }
+
+.logo-icon {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.5rem;
+  background-color: rgba(80, 72, 229, 0.2); /* primary/20 */
+  color: var(--primary);
+}
+
+.main-content {
+  flex: 1;
+  overflow: hidden;
+  padding: 1rem;
+}
+
+.main-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  height: 100%;
+}
+
+@media (min-width: 1024px) {
+  .main-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 2rem;
+  }
+  .generator-column {
+    grid-column: span 2 / span 2;
+  }
+}
+
+.generator-column, .history-column {
+  height: 100%;
+  min-height: 0; /* Important for flex/grid children behavior */
+  display: flex;
+  flex-direction: column;
+}
+
+@media (min-width: 640px) {
+  .main-content { padding: 1.5rem; }
+}
+@media (min-width: 1024px) {
+  .main-content { padding: 2rem; }
+}
+
+.footer-glow {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(to right, transparent, var(--primary), transparent);
+  opacity: 0.5;
+  pointer-events: none;
+}
 </style>

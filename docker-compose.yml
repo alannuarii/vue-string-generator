@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  stringgen:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+    container_name: vue-string-generator
+    labels:
+      - "com.example.description=Vue String Generator - Secure Random String Generator"
+      - "com.example.version=1.0.0"
