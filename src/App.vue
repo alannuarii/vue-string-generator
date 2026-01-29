@@ -83,7 +83,7 @@ onMounted(() => {
             <div class="logo-icon flex items-center justify-center">
               <span class="material-symbols-outlined text-[20px]">enhanced_encryption</span>
             </div>
-            <h1 class="text-xl">StringGen</h1>
+            <h1 class="text-xl">String Generator</h1>
           </div>
           <button 
             @click="toggleTheme"
